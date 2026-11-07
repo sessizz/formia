@@ -10,7 +10,7 @@ on:
       source_ref:
         description: Full commit SHA used by the release
         required: true
-        default: 12a1d94
+        default: 12a1d94f1540969b04a2078b0097d1927984e506
 
 permissions:
   contents: write
