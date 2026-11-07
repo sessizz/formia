@@ -19,6 +19,10 @@ const S = {
   all: [],
   items: [],
   search: '',
+  foldersCollapsed: false,
+  folderCount: 0,
+  archivesCollapsed: false,
+  archiveCount: 0,
   scan: null,
   back: [],
   fwd: [],
@@ -204,6 +208,19 @@ function applyFilters(opts = {}) {
       return terms.every((t) => n.includes(t));
     });
   }
+  S.folderCount = list.filter((i) => i.kind === 'dir').length;
+  $('#folder-section').hidden = !S.folderCount;
+  $('#folder-count').textContent = `· ${fmtInt(S.folderCount)}`;
+  $('#folder-toggle').setAttribute('aria-expanded', String(!S.foldersCollapsed));
+  $('#folder-toggle').title = S.foldersCollapsed ? 'Klasörleri göster' : 'Klasörleri gizle';
+  S.archiveCount = list.filter((i) => i.kind === 'archive').length;
+  $('#archive-section').hidden = !S.archiveCount;
+  $('#archive-count').textContent = `· ${fmtInt(S.archiveCount)}`;
+  $('#archive-toggle').setAttribute('aria-expanded', String(!S.archivesCollapsed));
+  $('#archive-toggle').title = S.archivesCollapsed ? 'ZIP arşivlerini göster' : 'ZIP arşivlerini gizle';
+  $('#file-groups').hidden = !S.folderCount && !S.archiveCount;
+  if (S.foldersCollapsed) list = list.filter((i) => i.kind !== 'dir');
+  if (S.archivesCollapsed) list = list.filter((i) => i.kind !== 'archive');
   S.items = sortItems(list);
   view.setShowLocation(!!S.scan);
   $('#list-header').classList.toggle('with-location', !!S.scan);
@@ -330,6 +347,10 @@ function updateEmpty() {
   let msg = '';
   if (!S.items.length) {
     if (S.scan) msg = S.scan.done ? (S.search ? 'Aramayla eşleşen model yok' : 'Bu klasörün altında 3D model bulunamadı') : 'Modeller aranıyor…';
+    else if ((S.foldersCollapsed && S.folderCount) || (S.archivesCollapsed && S.archiveCount)) {
+      const hidden = [S.foldersCollapsed && S.folderCount ? 'Klasörler' : '', S.archivesCollapsed && S.archiveCount ? 'ZIP arşivleri' : ''].filter(Boolean);
+      msg = `${hidden.join(' ve ')} gizli<small>Yukarıdaki başlıklardan tekrar gösterebilirsiniz</small>`;
+    }
     else if (S.search) msg = `“${esc(S.search)}” ile eşleşen öğe yok`;
     else if (S.settings.only3d && S.all.length) msg = 'Bu klasörde 3D dosya yok<small>“Sadece 3D” filtresini kapatarak diğer dosyaları görebilirsiniz</small>';
     else if (S.path === null) msg = 'Sürücü bulunamadı';
@@ -672,6 +693,14 @@ function beginDragWatch(down, item) {
 // ---------- wiring ----------
 
 function bindToolbar() {
+  $('#folder-toggle').onclick = () => {
+    S.foldersCollapsed = !S.foldersCollapsed;
+    applyFilters({ keepSelection: true });
+  };
+  $('#archive-toggle').onclick = () => {
+    S.archivesCollapsed = !S.archivesCollapsed;
+    applyFilters({ keepSelection: true });
+  };
   const set = (id, ic) => ($(id).innerHTML = icon(ic));
   set('#btn-back', 'back');
   set('#btn-fwd', 'forward');
@@ -815,6 +844,7 @@ function bindKeys() {
       if (preview.handleKey(e)) e.preventDefault();
       return;
     }
+    if (e.target.closest?.('#folder-toggle, #archive-toggle') && ['Enter', ' '].includes(e.key)) return;
     const k = e.key;
     const lower = k.length === 1 ? k.toLowerCase() : k;
     const ctrl = e.ctrlKey || e.metaKey;

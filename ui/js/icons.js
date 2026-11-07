@@ -16,7 +16,7 @@ const P = {
   fileText: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
   cube: '<path d="M12 2.8 3.8 7.4v9.2l8.2 4.6 8.2-4.6V7.4z"/><path d="m3.8 7.4 8.2 4.6 8.2-4.6M12 12v9.2"/>',
   wire: '<path d="M12 2.8 3.8 7.4v9.2l8.2 4.6 8.2-4.6V7.4z"/><path d="m3.8 7.4 8.2 4.6 8.2-4.6M12 12v9.2M8 5.1l8.2 4.6M16 5.1 7.9 9.7"/>',
-  archive: '<rect x="3" y="4" width="18" height="4.5" rx="1.2"/><path d="M5 8.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.5M10 12.5h4"/>',
+  archive: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M10 5v2m2 0v2m-2 0v2m2 0v2"/><rect x="9" y="14" width="4" height="4" rx="1"/>',
   image: '<rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="9" cy="9" r="1.8"/><path d="m21 15-4.6-4.6L6 21"/>',
   layers: '<path d="m12 3 9 4.6-9 4.6-9-4.6z"/><path d="m3 12.2 9 4.6 9-4.6M3 16.6l9 4.6 9-4.6"/>',
   video: '<rect x="2.5" y="5.5" width="14" height="13" rx="2"/><path d="m16.5 10.2 5-3v9.6l-5-3"/>',
@@ -63,8 +63,8 @@ export function icon(name, cls = '') {
 
 // Large two-tone artwork used in place of thumbnails.
 const BIG = {
-  dir: '<path d="M6 16a5 5 0 0 1 5-5h12.5l5.5 5.5H53a5 5 0 0 1 5 5V24H6z" fill="var(--folder-back)"/><path d="M6 22.5h52V48a5 5 0 0 1-5 5H11a5 5 0 0 1-5-5z" fill="var(--folder)"/>',
-  archive: '<path d="M6 16a5 5 0 0 1 5-5h12.5l5.5 5.5H53a5 5 0 0 1 5 5V24H6z" fill="var(--archive-back)"/><path d="M6 22.5h52V48a5 5 0 0 1-5 5H11a5 5 0 0 1-5-5z" fill="var(--archive)"/><path d="M30 22.5h4v4h-4zM34 26.5h-4v4h4zM30 30.5h4v4h-4zM34 34.5h-4v4h4z" fill="rgba(0,0,0,.28)"/><rect x="28.5" y="38.5" width="7" height="7" rx="1.5" fill="rgba(0,0,0,.28)"/>',
+  dir: '<path d="M8 19a5 5 0 0 1 5-5h11l6 7h21a5 5 0 0 1 5 5v23a5 5 0 0 1-5 5H13a5 5 0 0 1-5-5z" fill="color-mix(in srgb, var(--folder) 12%, transparent)" stroke="var(--folder)" stroke-width="2.6" stroke-linejoin="round"/>',
+  archive: '<path d="M37 9H17a5 5 0 0 0-5 5v36a5 5 0 0 0 5 5h30a5 5 0 0 0 5-5V24z" fill="color-mix(in srgb, var(--archive) 12%, transparent)" stroke="var(--archive)" stroke-width="2.6" stroke-linejoin="round"/><path d="M37 9v11a4 4 0 0 0 4 4h11M27 12v5m4 0v5m-4 0v5m4 0v5" fill="none" stroke="var(--archive)" stroke-width="2.6" stroke-linejoin="round"/><rect x="25" y="35" width="8" height="10" rx="2" fill="none" stroke="var(--archive)" stroke-width="2.6"/><path d="M28 40h2" stroke="var(--archive)" stroke-width="2" stroke-linecap="round"/>',
   drive: '<rect x="8" y="30" width="48" height="20" rx="5" fill="var(--drive)"/><path d="M14 30 19 14h26l5 16z" fill="var(--drive-back)"/><circle cx="17" cy="40" r="2.2" fill="#4ade80"/><path d="M25 40h22" stroke="rgba(0,0,0,.3)" stroke-width="3" stroke-linecap="round"/>',
 };
 

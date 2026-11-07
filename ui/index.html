@@ -65,6 +65,20 @@
           <input id="thumb-size" type="range" min="0" max="7" step="1" title="Küçük resim boyutu (Ctrl+Tekerlek)" />
           <button class="icon-btn" id="btn-settings" title="Ayarlar"></button>
         </div>
+        <div id="file-groups" class="file-groups" hidden>
+          <div id="folder-section" class="folder-section" hidden>
+            <button id="folder-toggle" class="folder-toggle" type="button" aria-expanded="true" aria-controls="view">
+              <svg class="folder-arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1.5 8 5 3 8.5z" /></svg>
+              <span>Klasörler</span><span id="folder-count" class="folder-count"></span>
+            </button>
+          </div>
+          <div id="archive-section" class="folder-section" hidden>
+            <button id="archive-toggle" class="folder-toggle" type="button" aria-expanded="true" aria-controls="view">
+              <svg class="folder-arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1.5 8 5 3 8.5z" /></svg>
+              <span>ZIP arşivleri</span><span id="archive-count" class="folder-count"></span>
+            </button>
+          </div>
+        </div>
         <div id="list-header" class="list-header" hidden>
           <button data-sort="name" class="c-name">Ad</button>
           <button data-sort="loc" class="c-loc">Konum</button>
