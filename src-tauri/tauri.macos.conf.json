@@ -1,0 +1,18 @@
+{
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Formia",
+        "width": 1320,
+        "height": 840,
+        "minWidth": 760,
+        "minHeight": 480,
+        "dragDropEnabled": false,
+        "backgroundColor": "#141518",
+        "titleBarStyle": "Transparent",
+        "hiddenTitle": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+[package]
+name = "formia"
+version = "1.0.0"
+description = "Formia: 3D model dosyaları için önizlemeli dosya gezgini"
+license = "MIT"
+repository = "https://github.com/sessizz/formia"
+edition = "2021"
+
+[lib]
+name = "formia_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7.4", features = [] }
+
+[dependencies]
+base64 = "0.23.1"
+blake3 = "1.8.7"
+dirs = "7.0.0"
+drag = "2.1.1"
+gltf = "1.4.1"
+image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp", "tga"] }
+memmap2 = "0.9.12"
+percent-encoding = "2.3.2"
+quick-xml = "0.42.0"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+tauri = { version = "2.12.5", features = [] }
+tauri-plugin-opener = "2.7.2"
+tauri-plugin-window-state = "2.5.0"
+trash = "5.3.0"
+walkdir = "2.5.0"
+zip = { version = "9.4.1", default-features = false, features = ["deflate-flate2-zlib-rs", "deflate64", "lzma"] }
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+codegen-units = 4
+lto = "thin"
+strip = true
+
+[target."cfg(windows)".dependencies]
+windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_Storage_FileSystem", "Win32_System_Diagnostics_Debug"] }

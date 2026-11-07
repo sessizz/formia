@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="tr" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Formia</title>
+    <link rel="stylesheet" href="css/app.css" />
+    <script type="importmap">
+      { "imports": { "three": "./vendor/three/three.module.js", "three/addons/": "./vendor/three/addons/" } }
+    </script>
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <aside id="sidebar">
+        <div class="brand" data-tauri-drag-region>
+          <img src="img/logo.png" alt="" />
+          <div class="brand-text"><span class="brand-name">formia</span><span class="brand-sub">3D dosya gezgini</span></div>
+        </div>
+        <nav id="places"></nav>
+      </aside>
+      <div id="sidebar-resizer" title="Genişliği ayarla"></div>
+      <main id="main">
+        <header id="toolbar" data-tauri-drag-region>
+          <div class="nav-buttons">
+            <button class="icon-btn" id="btn-back" title="Geri (Alt+←)"></button>
+            <button class="icon-btn" id="btn-fwd" title="İleri (Alt+→)"></button>
+            <button class="icon-btn" id="btn-up" title="Üst klasör (Backspace)"></button>
+            <button class="icon-btn" id="btn-refresh" title="Yenile (F5)"></button>
+          </div>
+          <div id="address" class="address" title="Yolu düzenlemek için tıklayın (Ctrl+L)">
+            <div id="crumbs" class="crumbs"></div>
+            <input id="address-input" class="address-input" spellcheck="false" hidden />
+            <button class="icon-btn fav-btn" id="btn-fav" title="Favorilere ekle (Ctrl+D)"></button>
+          </div>
+          <label class="search">
+            <span class="search-ico"></span>
+            <input id="search" type="search" placeholder="Bu klasörde ara" spellcheck="false" autocomplete="off" />
+          </label>
+          <!-- Window buttons for the frameless Windows window (macOS keeps its own). -->
+          <div class="win-controls" id="win-controls" hidden>
+            <button class="wc-btn" id="wc-min" title="Simge durumuna küçült"></button>
+            <button class="wc-btn" id="wc-max" title="Ekranı kapla"></button>
+            <button class="wc-btn wc-close" id="wc-close" title="Kapat (Alt+F4)"></button>
+          </div>
+        </header>
+        <div id="commandbar">
+          <button class="chip" id="chip-3d" title="Yalnızca klasörleri, arşivleri ve 3D dosyaları göster"></button>
+          <button class="chip" id="chip-scan" title="Bu klasörün altındaki tüm 3D modelleri bul (Ctrl+Shift+F)"></button>
+          <div class="spacer" data-tauri-drag-region></div>
+          <div class="sort">
+            <select id="sort-key" title="Sıralama">
+              <option value="name">Ad</option>
+              <option value="mtime">Değiştirilme</option>
+              <option value="size">Boyut</option>
+              <option value="type">Tür</option>
+              <option value="loc">Konum</option>
+            </select>
+            <button class="icon-btn" id="sort-dir" title="Sıralama yönü"></button>
+          </div>
+          <div class="seg">
+            <button class="icon-btn" id="view-grid" title="Izgara (Ctrl+1)"></button>
+            <button class="icon-btn" id="view-list" title="Liste (Ctrl+2)"></button>
+          </div>
+          <input id="thumb-size" type="range" min="0" max="7" step="1" title="Küçük resim boyutu (Ctrl+Tekerlek)" />
+          <button class="icon-btn" id="btn-settings" title="Ayarlar"></button>
+        </div>
+        <div id="list-header" class="list-header" hidden>
+          <button data-sort="name" class="c-name">Ad</button>
+          <button data-sort="loc" class="c-loc">Konum</button>
+          <button data-sort="mtime" class="c-date">Değiştirilme</button>
+          <button data-sort="type" class="c-type">Tür</button>
+          <button data-sort="size" class="c-size">Boyut</button>
+        </div>
+        <div id="view-wrap">
+          <div id="view" class="view as-grid" tabindex="0"><div class="sizer"></div></div>
+          <div id="empty" class="empty" hidden></div>
+          <div id="loading-bar" class="loading-bar" hidden></div>
+        </div>
+        <footer id="statusbar">
+          <span id="status-left"></span>
+          <span id="status-right"></span>
+        </footer>
+      </main>
+    </div>
+    <div id="toasts"></div>
+  </body>
+</html>
