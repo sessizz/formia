@@ -24,7 +24,6 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 45
     env:
-      CARGO_TARGET_DIR: ${{ runner.temp }}\formia-target
       GH_TOKEN: ${{ github.token }}
       RELEASE_TAG: ${{ inputs.release_tag }}
       SOURCE_REF: ${{ inputs.source_ref }}
@@ -36,6 +35,9 @@ jobs:
         with:
           node-version: '24'
       - uses: dtolnay/rust-toolchain@stable
+      - name: Set build output directory
+        shell: pwsh
+        run: '"CARGO_TARGET_DIR=$env:RUNNER_TEMP\formia-target" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8'
       - name: Verify draft release and source
         shell: pwsh
         run: |
