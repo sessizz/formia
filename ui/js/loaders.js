@@ -1,3 +1,4 @@
+import { t, errorMessage } from './i18n.js';
 // Turns a file path into a three.js object. Native formats come pre-parsed
 // from Rust (mesh://); the rest go through three.js loaders or OpenCascade.
 import * as THREE from 'three';
@@ -8,7 +9,7 @@ export class LoadError extends Error {}
 
 async function fetchBytes(url, signal) {
   const r = await fetch(url, { signal });
-  if (!r.ok) throw new LoadError((await r.text().catch(() => '')) || `HTTP ${r.status}`);
+  if (!r.ok) throw new LoadError(errorMessage((await r.text().catch(() => '')) || `HTTP ${r.status}`));
   return r.arrayBuffer();
 }
 
@@ -43,7 +44,7 @@ const cssColor = (rgba) => `#${(rgba >>> 8).toString(16).padStart(6, '0')}`;
 
 function decodeWire(buf, material) {
   const dv = new DataView(buf);
-  if (buf.byteLength < 20 || dv.getUint32(0, true) !== 0x5644334d) throw new LoadError('geçersiz mesh verisi');
+  if (buf.byteLength < 20 || dv.getUint32(0, true) !== 0x5644334d) throw new LoadError(t('geçersiz mesh verisi'));
   const flags = dv.getUint32(8, true);
   const vc = dv.getUint32(12, true);
   const ic = dv.getUint32(16, true);
@@ -145,7 +146,7 @@ export async function loadModel(path, ext, material, signal, { plate, toolpath: 
     const { ColladaLoader } = await import('three/addons/loaders/ColladaLoader.js');
     const text = new TextDecoder().decode(await fetchBytes(rawUrl(path), signal));
     const res = new ColladaLoader().parse(text, base);
-    if (!res?.scene) throw new LoadError('Collada sahnesi okunamadı');
+    if (!res?.scene) throw new LoadError(t('Collada sahnesi okunamadı'));
     object = res.scene;
     zUp = false; // ColladaLoader already converts Z_UP assets
   } else if (ext === '3ds') {
@@ -163,7 +164,7 @@ export async function loadModel(path, ext, material, signal, { plate, toolpath: 
   } else if (CAD.has(ext)) {
     const fmt = ext === 'iges' || ext === 'igs' ? 'iges' : ext === 'brep' ? 'brep' : 'step';
     const res = await occt(fmt, await fetchBytes(rawUrl(path), signal));
-    if (!res?.success || !res.meshes?.length) throw new LoadError('CAD dosyası okunamadı');
+    if (!res?.success || !res.meshes?.length) throw new LoadError(t('CAD dosyası okunamadı'));
     object = new THREE.Group();
     for (const m of res.meshes) {
       const g = new THREE.BufferGeometry();
@@ -212,7 +213,7 @@ export async function loadModel(path, ext, material, signal, { plate, toolpath: 
     zUp = false; // GCodeLoader rotates into Y-up itself
     lines = true;
   } else {
-    throw new LoadError('Bu biçim için 3B önizleme yok');
+    throw new LoadError(t('Bu biçim için 3B önizleme yok'));
   }
 
   if (signal?.aborted) throw new DOMException('aborted', 'AbortError');

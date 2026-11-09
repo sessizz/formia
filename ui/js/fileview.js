@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 // Virtualized grid/list of files with thumbnails, selection and keyboard navigation.
 import { thumbUrl } from './api.js';
 import { bigIcon, kindIcon } from './icons.js';
@@ -181,7 +182,7 @@ export class FileView {
     n.dataset.i = i;
     const badge = it.ext && it.kind !== 'dir' ? `<span class="badge b-${it.kind}">${esc(it.ext.toUpperCase())}</span>` : '';
     n.innerHTML = `<div class="thumb">${bigIcon(it.kind === 'drive' ? 'drive' : it.kind)}${badge}</div><div class="name" title="${esc(it.name)}">${esc(it.name)}</div><div class="meta">${esc(this.metaText(it))}</div>${
-      this.showLocation ? `<div class="loc" title="${esc(it.rel || '')}"><bdi>${esc(it.rel || '(bu klasör)')}</bdi></div>` : ''
+      this.showLocation ? `<div class="loc" title="${esc(it.rel || '')}"><bdi>${esc(it.rel || t('(bu klasör)'))}</bdi></div>` : ''
     }`;
     if (it.kind === 'drive' && it.drive.total) {
       const used = 1 - it.drive.free / it.drive.total;
@@ -197,15 +198,15 @@ export class FileView {
     n.className = `row k-${it.kind}${this.sel.has(it.path) ? ' selected' : ''}${i === this.focus ? ' focused' : ''}${it.hidden ? ' hidden-file' : ''}`;
     n.dataset.i = i;
     n.innerHTML = `<div class="c-name"><span class="mini">${kindIcon(it.kind)}</span><span class="label" title="${esc(it.name)}">${esc(it.name)}</span></div>${
-      this.showLocation ? `<div class="c-loc" title="${esc(it.rel || '')}"><bdi>${esc(it.rel || '(bu klasör)')}</bdi></div>` : ''
-    }<div class="c-date">${esc(fmtDate(it.mtime))}</div><div class="c-type">${esc(typeLabel(it))}</div><div class="c-size">${it.kind === 'dir' ? '' : esc(it.kind === 'drive' ? fmtSize(it.drive.free) + ' boş' : fmtSize(it.size))}</div>`;
+      this.showLocation ? `<div class="c-loc" title="${esc(it.rel || '')}"><bdi>${esc(it.rel || t('(bu klasör)'))}</bdi></div>` : ''
+    }<div class="c-date">${esc(fmtDate(it.mtime))}</div><div class="c-type">${esc(typeLabel(it))}</div><div class="c-size">${it.kind === 'dir' ? '' : esc(it.kind === 'drive' ? fmtSize(it.drive.free) + t(' boş') : fmtSize(it.size))}</div>`;
     this.attachThumb(n, n.querySelector('.mini'), it);
     return n;
   }
 
   metaText(it) {
-    if (it.kind === 'drive') return it.drive.total ? `${fmtSize(it.drive.free)} boş / ${fmtSize(it.drive.total)}` : it.path;
-    if (it.kind === 'dir') return 'Klasör';
+    if (it.kind === 'drive') return it.drive.total ? t('{free} boş / {total}', { free: fmtSize(it.drive.free), total: fmtSize(it.drive.total) }) : it.path;
+    if (it.kind === 'dir') return t('Klasör');
     return fmtSize(it.size);
   }
 

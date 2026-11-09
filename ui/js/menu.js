@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 // Context menus and toast notifications.
 import { el, esc } from './util.js';
 import { icon } from './icons.js';
@@ -66,7 +67,7 @@ export function showMenu(x, y, items) {
  * Modal confirmation. The confirm button has focus, so Enter/Space confirm and
  * Esc cancels. Resolves to true when confirmed.
  */
-export function confirmDialog({ title, body, confirmLabel = 'Tamam', cancelLabel = 'İptal', danger = false }) {
+export function confirmDialog({ title, body, confirmLabel = t('Tamam'), cancelLabel = t('İptal'), danger = false }) {
   return new Promise((resolve) => {
     const ok = el('button', { class: `btn${danger ? ' danger' : ' primary'}`, text: confirmLabel });
     const cancel = el('button', { class: 'btn', text: cancelLabel });

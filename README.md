@@ -58,6 +58,7 @@ After downloading:
 - **Favorites and drives:** quick access, drag-to-reorder favorites, USB/network drives, and storage usage bars.
 - **File operations:** multiple selection, inline renaming, moving files to the Recycle Bin/Trash with confirmation, and dragging files into a slicer.
 - **Dark, light, and system themes.** Color-menu changes affect only the preview; they are never written to the model file.
+- **English and Turkish interface.** On first launch, Formia uses Turkish if your system's preferred language is Turkish, and English otherwise. Change it anytime in **Settings → Language**; your choice is saved and applies immediately.
 - **Embedded previews:** reads 3MF plate images and G-code thumbnails. Embedded 3MF images can be disabled in settings.
 
 ## Screenshots

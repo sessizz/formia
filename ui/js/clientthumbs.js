@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 // Thumbnails for formats only the web view can read (FBX, Collada, 3DS, AMF,
 // VRML, STEP/IGES). Rendered one at a time offscreen, then cached by Rust.
 import * as THREE from 'three';
@@ -41,7 +42,7 @@ async function render(item) {
   try {
     pivot.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(pivot);
-    if (box.isEmpty()) throw new Error('boş model');
+    if (box.isEmpty()) throw new Error(t('boş model'));
     const center = box.getCenter(new THREE.Vector3());
     const radius = box.getSize(new THREE.Vector3()).length() / 2 || 1;
     const dir = new THREE.Vector3(Math.sin(AZ) * Math.cos(EL), Math.sin(EL), Math.cos(AZ) * Math.cos(EL));

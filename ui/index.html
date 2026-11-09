@@ -15,76 +15,76 @@
       <aside id="sidebar">
         <div class="brand" data-tauri-drag-region>
           <img src="img/logo.png" alt="" />
-          <div class="brand-text"><span class="brand-name">formia</span><span class="brand-sub">3D dosya gezgini</span></div>
+          <div class="brand-text"><span class="brand-name">formia</span><span class="brand-sub" data-i18n="3D dosya gezgini">3D dosya gezgini</span></div>
         </div>
         <nav id="places"></nav>
       </aside>
-      <div id="sidebar-resizer" title="Genişliği ayarla"></div>
+      <div id="sidebar-resizer" title="Genişliği ayarla" data-i18n-title="Genişliği ayarla"></div>
       <main id="main">
         <header id="toolbar" data-tauri-drag-region>
           <div class="nav-buttons">
-            <button class="icon-btn" id="btn-back" title="Geri (Alt+←)"></button>
-            <button class="icon-btn" id="btn-fwd" title="İleri (Alt+→)"></button>
-            <button class="icon-btn" id="btn-up" title="Üst klasör (Backspace)"></button>
-            <button class="icon-btn" id="btn-refresh" title="Yenile (F5)"></button>
+            <button class="icon-btn" id="btn-back" title="Geri (Alt+←)" data-i18n-title="Geri (Alt+←)"></button>
+            <button class="icon-btn" id="btn-fwd" title="İleri (Alt+→)" data-i18n-title="İleri (Alt+→)"></button>
+            <button class="icon-btn" id="btn-up" title="Üst klasör (Backspace)" data-i18n-title="Üst klasör (Backspace)"></button>
+            <button class="icon-btn" id="btn-refresh" title="Yenile (F5)" data-i18n-title="Yenile (F5)"></button>
           </div>
-          <div id="address" class="address" title="Yolu düzenlemek için tıklayın (Ctrl+L)">
+          <div id="address" class="address" title="Yolu düzenlemek için tıklayın (Ctrl+L)" data-i18n-title="Yolu düzenlemek için tıklayın (Ctrl+L)">
             <div id="crumbs" class="crumbs"></div>
             <input id="address-input" class="address-input" spellcheck="false" hidden />
-            <button class="icon-btn fav-btn" id="btn-fav" title="Favorilere ekle (Ctrl+D)"></button>
+            <button class="icon-btn fav-btn" id="btn-fav" title="Favorilere ekle (Ctrl+D)" data-i18n-title="Favorilere ekle (Ctrl+D)"></button>
           </div>
           <label class="search">
             <span class="search-ico"></span>
-            <input id="search" type="search" placeholder="Bu klasörde ara" spellcheck="false" autocomplete="off" />
+            <input id="search" type="search" placeholder="Bu klasörde ara" data-i18n-placeholder="Bu klasörde ara" spellcheck="false" autocomplete="off" />
           </label>
           <!-- Window buttons for the frameless Windows window (macOS keeps its own). -->
           <div class="win-controls" id="win-controls" hidden>
-            <button class="wc-btn" id="wc-min" title="Simge durumuna küçült"></button>
-            <button class="wc-btn" id="wc-max" title="Ekranı kapla"></button>
-            <button class="wc-btn wc-close" id="wc-close" title="Kapat (Alt+F4)"></button>
+            <button class="wc-btn" id="wc-min" title="Simge durumuna küçült" data-i18n-title="Simge durumuna küçült"></button>
+            <button class="wc-btn" id="wc-max" title="Ekranı kapla" data-i18n-title="Ekranı kapla"></button>
+            <button class="wc-btn wc-close" id="wc-close" title="Kapat (Alt+F4)" data-i18n-title="Kapat (Alt+F4)"></button>
           </div>
         </header>
         <div id="commandbar">
-          <button class="chip" id="chip-3d" title="Yalnızca klasörleri, arşivleri ve 3D dosyaları göster"></button>
-          <button class="chip" id="chip-scan" title="Bu klasörün altındaki tüm 3D modelleri bul (Ctrl+Shift+F)"></button>
+          <button class="chip" id="chip-3d" title="Yalnızca klasörleri, arşivleri ve 3D dosyaları göster" data-i18n-title="Yalnızca klasörleri, arşivleri ve 3D dosyaları göster"></button>
+          <button class="chip" id="chip-scan" title="Bu klasörün altındaki tüm 3D modelleri bul (Ctrl+Shift+F)" data-i18n-title="Bu klasörün altındaki tüm 3D modelleri bul (Ctrl+Shift+F)"></button>
           <div class="spacer" data-tauri-drag-region></div>
           <div class="sort">
-            <select id="sort-key" title="Sıralama">
-              <option value="name">Ad</option>
-              <option value="mtime">Değiştirilme</option>
-              <option value="size">Boyut</option>
-              <option value="type">Tür</option>
-              <option value="loc">Konum</option>
+            <select id="sort-key" title="Sıralama" data-i18n-title="Sıralama">
+              <option value="name" data-i18n="Ad">Ad</option>
+              <option value="mtime" data-i18n="Değiştirilme">Değiştirilme</option>
+              <option value="size" data-i18n="Boyut">Boyut</option>
+              <option value="type" data-i18n="Tür">Tür</option>
+              <option value="loc" data-i18n="Konum">Konum</option>
             </select>
-            <button class="icon-btn" id="sort-dir" title="Sıralama yönü"></button>
+            <button class="icon-btn" id="sort-dir" title="Sıralama yönü" data-i18n-title="Sıralama yönü"></button>
           </div>
           <div class="seg">
-            <button class="icon-btn" id="view-grid" title="Izgara (Ctrl+1)"></button>
-            <button class="icon-btn" id="view-list" title="Liste (Ctrl+2)"></button>
+            <button class="icon-btn" id="view-grid" title="Izgara (Ctrl+1)" data-i18n-title="Izgara (Ctrl+1)"></button>
+            <button class="icon-btn" id="view-list" title="Liste (Ctrl+2)" data-i18n-title="Liste (Ctrl+2)"></button>
           </div>
-          <input id="thumb-size" type="range" min="0" max="7" step="1" title="Küçük resim boyutu (Ctrl+Tekerlek)" />
-          <button class="icon-btn" id="btn-settings" title="Ayarlar"></button>
+          <input id="thumb-size" type="range" min="0" max="7" step="1" title="Küçük resim boyutu (Ctrl+Tekerlek)" data-i18n-title="Küçük resim boyutu (Ctrl+Tekerlek)" />
+          <button class="icon-btn" id="btn-settings" title="Ayarlar" data-i18n-title="Ayarlar"></button>
         </div>
         <div id="file-groups" class="file-groups" hidden>
           <div id="folder-section" class="folder-section" hidden>
             <button id="folder-toggle" class="folder-toggle" type="button" aria-expanded="true" aria-controls="view">
               <svg class="folder-arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1.5 8 5 3 8.5z" /></svg>
-              <span>Klasörler</span><span id="folder-count" class="folder-count"></span>
+              <span data-i18n="Klasörler">Klasörler</span><span id="folder-count" class="folder-count"></span>
             </button>
           </div>
           <div id="archive-section" class="folder-section" hidden>
             <button id="archive-toggle" class="folder-toggle" type="button" aria-expanded="true" aria-controls="view">
               <svg class="folder-arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1.5 8 5 3 8.5z" /></svg>
-              <span>ZIP arşivleri</span><span id="archive-count" class="folder-count"></span>
+              <span data-i18n="ZIP arşivleri">ZIP arşivleri</span><span id="archive-count" class="folder-count"></span>
             </button>
           </div>
         </div>
         <div id="list-header" class="list-header" hidden>
-          <button data-sort="name" class="c-name">Ad</button>
-          <button data-sort="loc" class="c-loc">Konum</button>
-          <button data-sort="mtime" class="c-date">Değiştirilme</button>
-          <button data-sort="type" class="c-type">Tür</button>
-          <button data-sort="size" class="c-size">Boyut</button>
+          <button data-sort="name" class="c-name" data-i18n="Ad">Ad</button>
+          <button data-sort="loc" class="c-loc" data-i18n="Konum">Konum</button>
+          <button data-sort="mtime" class="c-date" data-i18n="Değiştirilme">Değiştirilme</button>
+          <button data-sort="type" class="c-type" data-i18n="Tür">Tür</button>
+          <button data-sort="size" class="c-size" data-i18n="Boyut">Boyut</button>
         </div>
         <div id="view-wrap">
           <div id="view" class="view as-grid" tabindex="0"><div class="sizer"></div></div>

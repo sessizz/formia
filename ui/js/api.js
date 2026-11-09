@@ -1,7 +1,8 @@
 // Thin wrappers around the Tauri bridge.
+import { errorMessage } from './i18n.js';
 const T = window.__TAURI__;
 
-export const invoke = (cmd, args) => T.core.invoke(cmd, args);
+export const invoke = (cmd, args) => T.core.invoke(cmd, args).catch((error) => { throw errorMessage(error); });
 
 const src = (path, proto) => T.core.convertFileSrc(path, proto);
 

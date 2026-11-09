@@ -1,3 +1,4 @@
+import { t, applyTranslations } from './i18n.js';
 // Quick Look style preview: Space opens, arrows step through items, Esc/Space closes.
 import { api, rawUrl, thumbUrl } from './api.js';
 import { icon, bigIcon } from './icons.js';
@@ -36,7 +37,7 @@ export class Preview {
   }
 
   build() {
-    const tool = (id, ic, title) => el('button', { class: 'pv-tool', 'data-tool': id, title, html: icon(ic) });
+    const tool = (id, ic, title) => el('button', { class: 'pv-tool', 'data-tool': id, title: t(title), 'data-i18n-title': title, html: icon(ic) });
     this.root = el('div', { id: 'preview', class: 'preview', hidden: true });
     this.root.innerHTML = `
       <div class="pv-backdrop"></div>
@@ -45,25 +46,25 @@ export class Preview {
           <span class="pv-icon"></span>
           <div class="pv-title"><div class="pv-name"></div><div class="pv-sub"></div></div>
           <div class="pv-actions">
-            <button class="btn pv-open" title="Varsayılan uygulamada aç (Enter)">${icon('external')}<span>Aç</span></button>
-            <button class="icon-btn pv-reveal" title="Klasörde göster">${icon('reveal')}</button>
-            <button class="icon-btn pv-delete" title="Sil (Delete)">${icon('trash')}</button>
-            <button class="icon-btn pv-close" title="Kapat (Esc)">${icon('close')}</button>
+            <button class="btn pv-open" title="${t("Varsayılan uygulamada aç (Enter)")}" data-i18n-title="Varsayılan uygulamada aç (Enter)">${icon('external')}<span data-i18n="Aç">${t("Aç")}</span></button>
+            <button class="icon-btn pv-reveal" title="${t("Klasörde göster")}" data-i18n-title="Klasörde göster">${icon('reveal')}</button>
+            <button class="icon-btn pv-delete" title="${t("Sil (Delete)")}" data-i18n-title="Sil (Delete)">${icon('trash')}</button>
+            <button class="icon-btn pv-close" title="${t("Kapat (Esc)")}" data-i18n-title="Kapat (Esc)">${icon('close')}</button>
           </div>
         </header>
         <div class="pv-body">
-          <nav class="pv-plates" aria-label="Plakalar" hidden></nav>
+          <nav class="pv-plates" aria-label="${t("Plakalar")}" data-i18n-aria-label="Plakalar" hidden></nav>
           <div class="pv-stage"></div>
           <div class="pv-3d" hidden></div>
-          <div class="pv-loading" hidden><div class="spinner"></div><span>Yükleniyor…</span></div>
+          <div class="pv-loading" hidden><div class="spinner"></div><span data-i18n="Yükleniyor…">${t("Yükleniyor…")}</span></div>
           <div class="pv-error" hidden></div>
-          <button class="pv-nav prev" title="Önceki (←)">${icon('chevronLeft')}</button>
-          <button class="pv-nav next" title="Sonraki (→)">${icon('chevronRight')}</button>
+          <button class="pv-nav prev" title="${t("Önceki (←)")}" data-i18n-title="Önceki (←)">${icon('chevronLeft')}</button>
+          <button class="pv-nav next" title="${t("Sonraki (→)")}" data-i18n-title="Sonraki (→)">${icon('chevronRight')}</button>
           <div class="pv-tools" hidden></div>
           <img class="pv-inset" hidden alt="">
         </div>
         <footer class="pv-foot"></footer>
-        <div class="pv-cpop" role="dialog" aria-label="Renkler" hidden></div>
+        <div class="pv-cpop" role="dialog" aria-label="${t("Renkler")}" data-i18n-aria-label="Renkler" hidden></div>
       </div>`;
     const tools = this.root.querySelector('.pv-tools');
     tools.append(
@@ -73,7 +74,7 @@ export class Preview {
       tool('smooth', 'sphere', 'Yumuşak gölgeleme (S)'),
       tool('grid', 'floor', 'Zemin ızgarası (G)'),
       tool('autoRotate', 'rotate', 'Otomatik döndür (A)'),
-      el('button', { class: 'pv-tool pv-axis', 'data-tool': 'axis', title: 'Yukarı ekseni değiştir (U)', text: 'Z↑' })
+      el('button', { class: 'pv-tool pv-axis', 'data-tool': 'axis', 'data-i18n-title': 'Yukarı ekseni değiştir (U)', title: t('Yukarı ekseni değiştir (U)'), text: 'Z↑' })
     );
     document.body.append(this.root);
     const q = (s) => this.root.querySelector(s);
@@ -111,6 +112,23 @@ export class Preview {
     });
   }
 
+  retranslate() {
+    applyTranslations(this.root);
+    if (!this.item) return;
+    this.$.sub.textContent = this.item.rel ? `${typeLabel(this.item)} · ${this.item.rel}` : typeLabel(this.item);
+    const hint = this.$.stage.querySelector('.pv-info-hint');
+    if (hint) hint.textContent = t('Açmak için Enter veya çift tıklayın');
+    const type = this.$.stage.querySelector('.pv-info-type');
+    if (type) type.textContent = typeLabel(this.item);
+    this.renderPlates();
+    this.renderFoot(this.item, this.footInfo);
+    if (!this.$.cpop.hidden) this.renderColors();
+    if (!this.$.loading.hidden) this.setBusy(true, ...(this.busyState || []));
+    if (this.errorState) this.setError(...this.errorState);
+    const pre = this.$.stage.querySelector('.pv-text');
+    if (pre && this.textPreview) pre.textContent = this.textPreview.text + (this.textPreview.truncated ? '\n\n' + t('… (ilk 256 KB gösteriliyor)') : '');
+  }
+
   ensureViewer() {
     if (!this.viewer) {
       const s = this.getSettings();
@@ -145,14 +163,14 @@ export class Preview {
     if (!this.plates.length) return void (this.$.plates.innerHTML = '');
     const items = this.plates
       .map((p) => {
-        const label = p.name || `Plaka ${p.id}`;
+        const label = p.name || t('Plaka {id}', { id: p.id });
         const pic = p.thumb ? `<img src="${p.thumb}" alt="" draggable="false">` : `<span class="pl-none">${icon('cube')}</span>`;
         const cls = `pl-item${p.id === this.plate ? ' on' : ''}${p.objects ? '' : ' pl-blank'}`;
-        const title = p.objects ? `${label} · ${p.objects} nesne` : `${label} · boş`;
+        const title = p.objects ? t('{name} · {count} nesne', { name: label, count: fmtInt(p.objects) }) : t('{name} · boş', { name: label });
         return `<button class="${cls}" data-plate="${p.id}" title="${esc(title)}"><span class="pl-pic">${pic}<span class="pl-num">${p.id}</span></span><span class="pl-name">${esc(label)}</span></button>`;
       })
       .join('');
-    this.$.plates.innerHTML = `<div class="pl-head">Plakalar <span>${this.plates.length}</span></div>${items}`;
+    this.$.plates.innerHTML = `<div class="pl-head">${t('Plakalar')} <span>${this.plates.length}</span></div>${items}`;
     this.$.plates.querySelector('.pl-item.on')?.scrollIntoView({ block: 'nearest' });
   }
 
@@ -180,7 +198,7 @@ export class Preview {
       this.viewer.clear();
       this.closeColors();
       this.renderFoot(this.item, null);
-      this.setError(`Plaka açılamadı: ${e?.message || e}`);
+      this.setError('Plaka açılamadı: {error}', { error: e?.message || e });
     }
   }
 
@@ -191,10 +209,10 @@ export class Preview {
       .slice(0, 8)
       .map((s) => `<i style="background:${s.current || s.original}"></i>`)
       .join('');
-    const label = slots.length > 1 ? `${slots.length} renk` : 'Renk';
+    const label = slots.length > 1 ? t('{count} renk', { count: fmtInt(slots.length) }) : t('Renk');
     const open = this.$.cpop.hidden ? '' : ' open';
     const changed = slots.some((s) => s.current) ? ' changed' : '';
-    return `<button class="chip-info swatches pv-colors${open}${changed}" title="Renkleri değiştir (yalnızca önizleme)">${dots}<span>${label}</span>${icon('chevronDown')}</button>`;
+    return `<button class="chip-info swatches pv-colors${open}${changed}" title="${t("Renkleri değiştir (yalnızca önizleme)")}" data-i18n-title="Renkleri değiştir (yalnızca önizleme)">${dots}<span>${label}</span>${icon('chevronDown')}</button>`;
   }
 
   /** Re-renders the footer chip and, when open, the menu after the model's colours changed. */
@@ -233,21 +251,21 @@ export class Preview {
         const row = `<div class="cp-row${i === this.colorRow ? ' on' : ''}">
           <span class="cp-sw"><i style="background:${s.original}"></i>${s.original.toUpperCase()}</span>
           <span class="cp-arrow">→</span>
-          <button class="cp-sw cp-new${cur ? ' set' : ''}" data-act="row" data-i="${i}" title="Yeni renk seç"><i style="background:${cur || s.original}"></i>${cur ? cur.toUpperCase() : 'aynı'}</button>
-          <button class="icon-btn cp-reset" data-act="reset" data-i="${i}" title="Orijinale dön"${cur ? '' : ' disabled'}>${icon('refresh')}</button>
+          <button class="cp-sw cp-new${cur ? ' set' : ''}" data-act="row" data-i="${i}" title="${t("Yeni renk seç")}" data-i18n-title="Yeni renk seç"><i style="background:${cur || s.original}"></i>${cur ? cur.toUpperCase() : t('aynı')}</button>
+          <button class="icon-btn cp-reset" data-act="reset" data-i="${i}" title="${t("Orijinale dön")}" data-i18n-title="Orijinale dön"${cur ? '' : ' disabled'}>${icon('refresh')}</button>
         </div>`;
         if (i !== this.colorRow) return row;
         const sel = (cur || '').toLowerCase();
-        const dots = FILAMENT_PRESETS.map(([hex, name]) => `<button class="cp-dot${sel === hex ? ' sel' : ''}" data-act="preset" data-hex="${hex}" title="${name}" style="background:${hex}"></button>`).join('');
-        return `${row}<div class="cp-grid">${dots}<label class="cp-dot cp-custom" title="Özel renk…"><input type="color" value="${cur || s.original}"></label></div>`;
+        const dots = FILAMENT_PRESETS.map(([hex, name]) => `<button class="cp-dot${sel === hex ? ' sel' : ''}" data-act="preset" data-hex="${hex}" title="${t(name)}" style="background:${hex}"></button>`).join('');
+        return `${row}<div class="cp-grid">${dots}<label class="cp-dot cp-custom" title="${t("Özel renk…")}" data-i18n-title="Özel renk…"><input type="color" value="${cur || s.original}"></label></div>`;
       })
       .join('');
     const any = slots.some((s) => s.current);
     this.$.cpop.innerHTML = `
-      <div class="cp-head"><b>${slots.length > 1 ? 'Filament renkleri' : 'Model rengi'}</b><small>yalnızca önizleme</small></div>
-      <div class="cp-cols"><span>Orijinal</span><span></span><span>Yeni</span><span></span></div>
+      <div class="cp-head"><b>${slots.length > 1 ? t('Filament renkleri') : t('Model rengi')}</b><small data-i18n="yalnızca önizleme">${t("yalnızca önizleme")}</small></div>
+      <div class="cp-cols"><span data-i18n="Orijinal">${t("Orijinal")}</span><span></span><span data-i18n="Yeni">${t("Yeni")}</span><span></span></div>
       <div class="cp-list">${rows}</div>
-      <div class="cp-foot"><span>Esc ile kapanır</span><button class="btn cp-all" data-act="all"${any ? '' : ' disabled'}>Hepsini sıfırla</button></div>`;
+      <div class="cp-foot"><span data-i18n="Esc ile kapanır">${t("Esc ile kapanır")}</span><button class="btn cp-all" data-act="all"${any ? '' : ' disabled'} data-i18n="Hepsini sıfırla">${t("Hepsini sıfırla")}</button></div>`;
     this.positionColors();
   }
 
@@ -330,7 +348,7 @@ export class Preview {
   }
 
   openExternal() {
-    if (this.item) api.open(this.item.path).catch((e) => toast(`Açılamadı: ${e}`, 'error'));
+    if (this.item) api.open(this.item.path).catch((e) => toast(t('Açılamadı: {error}', { error: e }), 'error'));
   }
 
   syncTools() {
@@ -377,14 +395,16 @@ export class Preview {
     return false;
   }
 
-  setBusy(on, text = 'Yükleniyor…') {
+  setBusy(on, source = 'Yükleniyor…', values = {}) {
+    this.busyState = on ? [source, values] : null;
     this.$.loading.hidden = !on;
-    this.$.loading.querySelector('span').textContent = text;
+    this.$.loading.querySelector('span').textContent = t(source, values);
   }
 
-  setError(msg) {
+  setError(msg, values = {}) {
+    this.errorState = msg ? [msg, values] : null;
     this.$.error.hidden = !msg;
-    this.$.error.innerHTML = msg ? `${icon('info')}<span>${esc(msg)}</span>` : '';
+    this.$.error.innerHTML = msg ? `${icon('info')}<span>${esc(t(msg, values))}</span>` : '';
   }
 
   async show(item) {
@@ -396,6 +416,7 @@ export class Preview {
     this.abort = new AbortController();
     const signal = this.abort.signal;
     this.item = item;
+    this.textPreview = null;
     this.$.icon.innerHTML = bigIcon(item.kind);
     this.$.name.textContent = item.name;
     this.$.sub.textContent = item.rel ? `${typeLabel(item)} · ${item.rel}` : typeLabel(item);
@@ -419,7 +440,7 @@ export class Preview {
         v.resize();
         v.start();
         const cad = ['step', 'stp', 'iges', 'igs', 'brep'].includes(item.ext);
-        this.setBusy(true, cad ? 'CAD dosyası üçgenlere dönüştürülüyor…' : item.size > 50e6 ? `Büyük dosya yükleniyor (${fmtSize(item.size)})…` : 'Yükleniyor…');
+        this.setBusy(true, cad ? 'CAD dosyası üçgenlere dönüştürülüyor…' : item.size > 50e6 ? 'Büyük dosya yükleniyor ({size})…' : 'Yükleniyor…', { size: fmtSize(item.size) });
         if (kind === 'gcode') this.showInset(item);
         // Multi-plate Bambu/Orca project: list the plates and show one at a time.
         const plates = item.ext === '3mf' ? await api.plates(item.path).catch(() => []) : [];
@@ -448,7 +469,8 @@ export class Preview {
         if (token !== this.token) return;
         this.setBusy(false);
         const pre = el('pre', { class: 'pv-text' });
-        pre.textContent = text + (item.size > TEXT_LIMIT ? '\n\n… (ilk 256 KB gösteriliyor)' : '');
+        this.textPreview = { text, truncated: item.size > TEXT_LIMIT };
+        pre.textContent = text + (item.size > TEXT_LIMIT ? '\n\n' + t('… (ilk 256 KB gösteriliyor)') : '');
         this.$.stage.append(pre);
       } else {
         this.$.stage.append(this.infoCard(item));
@@ -460,7 +482,7 @@ export class Preview {
       this.$.tools.hidden = true;
       this.viewer?.stop();
       this.$.stage.append(this.infoCard(item));
-      this.setError(`Önizleme açılamadı: ${e?.message || e}`);
+      this.setError('Önizleme açılamadı: {error}', { error: e?.message || e });
     }
   }
 
@@ -489,16 +511,17 @@ export class Preview {
       el('div', { class: 'pv-info-icon', html: bigIcon(item.kind) }),
       el('div', { class: 'pv-info-name', text: item.name }),
       el('div', { class: 'pv-info-type', text: typeLabel(item) }),
-      item.kind === 'dir' || item.kind === 'archive' || item.kind === 'drive' ? el('div', { class: 'pv-info-hint', text: 'Açmak için Enter veya çift tıklayın' }) : null
+      item.kind === 'dir' || item.kind === 'archive' || item.kind === 'drive' ? el('div', { class: 'pv-info-hint', text: t('Açmak için Enter veya çift tıklayın') }) : null
     );
   }
 
   renderFoot(item, info) {
+    this.footInfo = info;
     const chips = [];
     if (info) {
       const u = info.unit ? ` ${info.unit}` : '';
-      chips.push(`<span class="chip-info" title="Genişlik × Derinlik × Yükseklik">${icon('ruler')}${fmtDim(info.x)} × ${fmtDim(info.y)} × ${fmtDim(info.z)}${u}</span>`);
-      if (info.triangles) chips.push(`<span class="chip-info">${icon('cube')}${fmtInt(info.triangles)} üçgen</span>`);
+      chips.push(`<span class="chip-info" title="${t("Genişlik × Derinlik × Yükseklik")}" data-i18n-title="Genişlik × Derinlik × Yükseklik">${icon('ruler')}${fmtDim(info.x)} × ${fmtDim(info.y)} × ${fmtDim(info.z)}${u}</span>`);
+      if (info.triangles) chips.push(`<span class="chip-info">${icon('cube')}${t('{count} üçgen', { count: fmtInt(info.triangles) })}</span>`);
       const slots = this.viewer?.colorSlots() || [];
       if (slots.length) chips.push(this.colorChip(slots));
     }

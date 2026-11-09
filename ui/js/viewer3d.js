@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 // Interactive model viewer used by the Quick Look preview.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -221,7 +222,7 @@ export class Viewer3D {
     this.pivot.position.set(0, 0, 0);
     this.pivot.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(this.pivot);
-    if (box.isEmpty()) throw new Error('Model boş görünüyor');
+    if (box.isEmpty()) throw new Error(t('Model boş görünüyor'));
     const c = box.getCenter(new THREE.Vector3());
     this.pivot.position.set(-c.x, -box.min.y, -c.z);
     this.pivot.updateMatrixWorld(true);

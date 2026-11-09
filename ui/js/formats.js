@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 // File type knowledge shared by the browser, thumbnails and preview.
 import { extOf } from './util.js';
 
@@ -54,12 +55,12 @@ export function thumbSource(ext) {
 export const defaultZUp = (ext) => Z_UP.has(ext);
 
 export function typeLabel(item) {
-  if (item.kind === 'dir') return 'Klasör';
-  if (item.kind === 'drive') return 'Sürücü';
-  if (TYPE_LABEL[item.ext]) return TYPE_LABEL[item.ext];
-  if (item.kind === 'image') return `${item.ext.toUpperCase()} görseli`;
-  if (item.kind === 'video') return `${item.ext.toUpperCase()} videosu`;
-  return item.ext ? `${item.ext.toUpperCase()} dosyası` : 'Dosya';
+  if (item.kind === 'dir') return t('Klasör');
+  if (item.kind === 'drive') return t('Sürücü');
+  if (TYPE_LABEL[item.ext]) return t(TYPE_LABEL[item.ext]);
+  if (item.kind === 'image') return t('{ext} görseli', { ext: item.ext.toUpperCase() });
+  if (item.kind === 'video') return t('{ext} videosu', { ext: item.ext.toUpperCase() });
+  return item.ext ? t('{ext} dosyası', { ext: item.ext.toUpperCase() }) : t('Dosya');
 }
 
 /** Normalizes a Rust entry into the UI item model. */

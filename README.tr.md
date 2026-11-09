@@ -58,6 +58,7 @@ Paketler şu an **kod imzalı değildir**; macOS Gatekeeper ve Windows SmartScre
 - **Favoriler ve sürücüler:** hızlı erişim, sürükleyerek sıralanan favoriler, USB/ağ sürücüleri ve doluluk çubukları.
 - **Dosya işlemleri:** çoklu seçim, yerinde yeniden adlandırma, onayla Geri Dönüşüm Kutusu’na taşıma ve slicer’a sürükleme.
 - **Koyu, açık ve sistem teması.** Renk menüsündeki değişiklikler yalnızca önizlemeyi etkiler; model dosyasına yazılmaz.
+- **Türkçe ve İngilizce arayüz.** İlk açılışta bilgisayarın tercih edilen dili Türkçeyse Türkçe, diğer dillerde İngilizce seçilir. **Ayarlar → Dil** bölümünden değiştirebilirsin; seçimin kaydedilir ve hemen uygulanır.
 - **Gömülü önizlemeler:** 3MF plaka görselleri ve G-code küçük resimleri okunur. 3MF’te gömülü görsel kullanımı ayarlardan kapatılabilir.
 
 ## Ekran görüntüleri

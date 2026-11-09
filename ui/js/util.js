@@ -1,4 +1,5 @@
 // Small shared helpers: formatting, text folding, DOM shortcuts.
+import { getLocale } from './i18n.js';
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -24,11 +25,20 @@ export function el(tag, attrs = {}, ...children) {
 const HTML_ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => HTML_ESC[c]);
 
-const nf1 = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 });
-const nf0 = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 });
-const nf2 = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
-export const fmtInt = (n) => nf0.format(n);
-export const fmtDim = (n) => nf2.format(n);
+const formatters = new Map();
+function formats() {
+  const locale = getLocale();
+  if (!formatters.has(locale)) formatters.set(locale, {
+    nf1: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }),
+    nf0: new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }),
+    nf2: new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 2 }),
+    date: new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    collator: new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }),
+  });
+  return formatters.get(locale);
+}
+export const fmtInt = (n) => formats().nf0.format(n);
+export const fmtDim = (n) => formats().nf2.format(n);
 
 export function fmtSize(bytes) {
   if (bytes == null) return '';
@@ -40,11 +50,10 @@ export function fmtSize(bytes) {
     v /= 1024;
     i++;
   }
-  return `${v >= 100 ? nf0.format(v) : nf1.format(v)} ${units[i]}`;
+  return `${v >= 100 ? formats().nf0.format(v) : formats().nf1.format(v)} ${units[i]}`;
 }
 
-const dtf = new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-export const fmtDate = (ms) => (ms ? dtf.format(new Date(ms)) : '');
+export const fmtDate = (ms) => (ms ? formats().date.format(new Date(ms)) : '');
 
 /** Case/diacritic-insensitive form for searching (handles Turkish I/ı/İ). */
 export function fold(s) {
@@ -55,8 +64,7 @@ export function fold(s) {
     .replace(/[̀-ͯ]/g, '');
 }
 
-const collator = new Intl.Collator('tr', { numeric: true, sensitivity: 'base' });
-export const naturalCompare = (a, b) => collator.compare(a, b);
+export const naturalCompare = (a, b) => formats().collator.compare(a, b);
 
 export function extOf(name) {
   const i = name.lastIndexOf('.');

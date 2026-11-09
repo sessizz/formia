@@ -1,3 +1,4 @@
+import { t, setLanguage, applyTranslations, getLocale } from './i18n.js';
 // App shell: navigation, filtering, scan mode, toolbar and keyboard wiring.
 import { api, bumpThumbGen } from './api.js';
 import { $, fold, naturalCompare, debounce, isTypingTarget, fmtInt, fmtSize, esc } from './util.js';
@@ -64,10 +65,10 @@ function toggleFavorite(path, name, archive = false) {
   const i = favs.findIndex((f) => normPath(f.path) === normPath(path));
   if (i >= 0) {
     favs.splice(i, 1);
-    toast('Favorilerden çıkarıldı');
+    toast(t('Favorilerden çıkarıldı'));
   } else {
     favs.push({ path, name: name || baseName(path), archive });
-    toast('Favorilere eklendi');
+    toast(t('Favorilere eklendi'));
   }
   save();
   sidebar.render(S.places, favs);
@@ -77,9 +78,9 @@ function toggleFavorite(path, name, archive = false) {
 async function copyText(text) {
   try {
     await navigator.clipboard.writeText(text);
-    toast('Panoya kopyalandı');
+    toast(t('Panoya kopyalandı'));
   } catch {
-    toast('Kopyalanamadı', 'error');
+    toast(t('Kopyalanamadı'), 'error');
   }
 }
 
@@ -96,7 +97,7 @@ async function navigate(path, { push = true, focusPath = null, keepScroll = fals
   } catch (e) {
     if (token === S.navToken) {
       setLoading(false);
-      toast(`Açılamadı: ${e}`, 'error', 4500);
+      toast(t('Açılamadı: {error}', { error: e }), 'error', 4500);
     }
     return false;
   }
@@ -121,7 +122,7 @@ async function navigate(path, { push = true, focusPath = null, keepScroll = fals
   updateNav();
   sidebar.highlight(S.path);
   updateFavButton();
-  $('#search').placeholder = S.path == null ? 'Sürücülerde ara' : `${baseName(S.path) || S.path} içinde ara`;
+  $('#search').placeholder = S.path == null ? t('Sürücülerde ara') : t('{name} içinde ara', { name: baseName(S.path) || S.path });
   api.setTitle(S.path == null ? 'Formia' : `${baseName(S.path) || S.path} — Formia`).catch(() => {});
   return true;
 }
@@ -155,7 +156,7 @@ function refresh() {
 function openItem(item) {
   if (!item) return;
   if (item.kind === 'dir' || item.kind === 'archive' || item.kind === 'drive') navigate(item.path);
-  else api.open(item.path).catch((e) => toast(`Açılamadı: ${e}`, 'error'));
+  else api.open(item.path).catch((e) => toast(t('Açılamadı: {error}', { error: e }), 'error'));
 }
 
 async function loadPlaces() {
@@ -212,12 +213,12 @@ function applyFilters(opts = {}) {
   $('#folder-section').hidden = !S.folderCount;
   $('#folder-count').textContent = `· ${fmtInt(S.folderCount)}`;
   $('#folder-toggle').setAttribute('aria-expanded', String(!S.foldersCollapsed));
-  $('#folder-toggle').title = S.foldersCollapsed ? 'Klasörleri göster' : 'Klasörleri gizle';
+  $('#folder-toggle').title = S.foldersCollapsed ? t('Klasörleri göster') : t('Klasörleri gizle');
   S.archiveCount = list.filter((i) => i.kind === 'archive').length;
   $('#archive-section').hidden = !S.archiveCount;
   $('#archive-count').textContent = `· ${fmtInt(S.archiveCount)}`;
   $('#archive-toggle').setAttribute('aria-expanded', String(!S.archivesCollapsed));
-  $('#archive-toggle').title = S.archivesCollapsed ? 'ZIP arşivlerini göster' : 'ZIP arşivlerini gizle';
+  $('#archive-toggle').title = S.archivesCollapsed ? t('ZIP arşivlerini göster') : t('ZIP arşivlerini gizle');
   $('#file-groups').hidden = !S.folderCount && !S.archiveCount;
   if (S.foldersCollapsed) list = list.filter((i) => i.kind !== 'dir');
   if (S.archivesCollapsed) list = list.filter((i) => i.kind !== 'archive');
@@ -235,7 +236,7 @@ const applySearch = debounce(() => applyFilters({ keepSelection: true }), 90);
 
 function startScan() {
   if (S.path == null) {
-    toast('Taramak için önce bir klasör açın');
+    toast(t('Taramak için önce bir klasör açın'));
     return;
   }
   if (S.scan && !S.scan.done) api.scanCancel(S.scan.id).catch(() => {});
@@ -268,7 +269,7 @@ function startScan() {
         scan.files = ev.files;
         scan.error = ev.error;
         scan.t1 = performance.now();
-        if (ev.error) toast(`Tarama hatası: ${ev.error}`, 'error');
+        if (ev.error) toast(t('Tarama hatası: {error}', { error: ev.error }), 'error');
         applyFilters({ keepScroll: true, keepSelection: true });
         updateScanUi();
       }
@@ -277,7 +278,7 @@ function startScan() {
       scan.id = id;
       if (S.scan !== scan) api.scanCancel(id).catch(() => {});
     })
-    .catch((e) => toast(`Tarama başlatılamadı: ${e}`, 'error'));
+    .catch((e) => toast(t('Tarama başlatılamadı: {error}', { error: e }), 'error'));
 }
 
 function stopScan(exit = true, rerender = true) {
@@ -308,14 +309,14 @@ function updateFavButton() {
   const on = S.path != null && isFav(S.path);
   b.classList.toggle('on', on);
   b.disabled = S.path == null;
-  b.title = on ? 'Favorilerden çıkar (Ctrl+D)' : 'Favorilere ekle (Ctrl+D)';
+  b.title = on ? t('Favorilerden çıkar (Ctrl+D)') : t('Favorilere ekle (Ctrl+D)');
 }
 
 function updateScanUi() {
   const chip = $('#chip-scan');
   const running = S.scan && !S.scan.done;
   chip.classList.toggle('on', !!S.scan);
-  chip.innerHTML = `${icon('scan')}<span>${S.scan ? (running ? 'Taranıyor…' : 'Tarama sonucu') : 'Alt klasörleri tara'}</span>${S.scan ? `<span class="chip-x" title="Taramadan çık (Esc)">${icon('close')}</span>` : ''}`;
+  chip.innerHTML = `${icon('scan')}<span>${S.scan ? (running ? t('Taranıyor…') : t('Tarama sonucu')) : t('Alt klasörleri tara')}</span>${S.scan ? `<span class="chip-x" title="${t('Taramadan çık (Esc)')}">${icon('close')}</span>` : ''}`;
   chip.classList.toggle('busy', !!running);
   $('#chip-3d').disabled = !!S.scan;
   updateNav();
@@ -324,7 +325,7 @@ function updateScanUi() {
 function updateChips() {
   const c = $('#chip-3d');
   c.classList.toggle('on', S.settings.only3d);
-  c.innerHTML = `${icon('cube')}<span>Sadece 3D</span>`;
+  c.innerHTML = `${icon('cube')}<span>${t('Sadece 3D')}</span>`;
 }
 
 function updateViewButtons() {
@@ -346,15 +347,15 @@ function updateEmpty() {
   const e = $('#empty');
   let msg = '';
   if (!S.items.length) {
-    if (S.scan) msg = S.scan.done ? (S.search ? 'Aramayla eşleşen model yok' : 'Bu klasörün altında 3D model bulunamadı') : 'Modeller aranıyor…';
+    if (S.scan) msg = S.scan.done ? (S.search ? t('Aramayla eşleşen model yok') : t('Bu klasörün altında 3D model bulunamadı')) : t('Modeller aranıyor…');
     else if ((S.foldersCollapsed && S.folderCount) || (S.archivesCollapsed && S.archiveCount)) {
-      const hidden = [S.foldersCollapsed && S.folderCount ? 'Klasörler' : '', S.archivesCollapsed && S.archiveCount ? 'ZIP arşivleri' : ''].filter(Boolean);
-      msg = `${hidden.join(' ve ')} gizli<small>Yukarıdaki başlıklardan tekrar gösterebilirsiniz</small>`;
+      const hidden = [S.foldersCollapsed && S.folderCount ? t('Klasörler') : '', S.archivesCollapsed && S.archiveCount ? t('ZIP arşivleri') : ''].filter(Boolean);
+      msg = `${esc(t('{groups} gizli', { groups: hidden.join(t(' ve ')) }))}<small>${t('Yukarıdaki başlıklardan tekrar gösterebilirsiniz')}</small>`;
     }
-    else if (S.search) msg = `“${esc(S.search)}” ile eşleşen öğe yok`;
-    else if (S.settings.only3d && S.all.length) msg = 'Bu klasörde 3D dosya yok<small>“Sadece 3D” filtresini kapatarak diğer dosyaları görebilirsiniz</small>';
-    else if (S.path === null) msg = 'Sürücü bulunamadı';
-    else msg = 'Bu klasör boş';
+    else if (S.search) msg = esc(t('“{query}” ile eşleşen öğe yok', { query: S.search }));
+    else if (S.settings.only3d && S.all.length) msg = t('Bu klasörde 3D dosya yok<small>“Sadece 3D” filtresini kapatarak diğer dosyaları görebilirsiniz</small>');
+    else if (S.path === null) msg = t('Sürücü bulunamadı');
+    else msg = t('Bu klasör boş');
   }
   e.hidden = !msg;
   e.innerHTML = msg ? `${icon(S.scan && !S.scan.done ? 'scan' : 'folder')}<div>${msg}</div>` : '';
@@ -364,25 +365,25 @@ function updateStatus() {
   const left = $('#status-left');
   const right = $('#status-right');
   const sel = view.selected();
-  let text = `${fmtInt(S.items.length)} öğe`;
-  if (S.items.length !== (S.scan ? S.scan.items.length : S.all.length)) text += ` (toplam ${fmtInt(S.scan ? S.scan.items.length : S.all.length)})`;
+  let text = t('{count} öğe', { count: fmtInt(S.items.length) });
+  if (S.items.length !== (S.scan ? S.scan.items.length : S.all.length)) text += t(' (toplam {count})', { count: fmtInt(S.scan ? S.scan.items.length : S.all.length) });
   if (sel.length) {
     const bytes = sel.reduce((a, i) => a + (i.kind === 'dir' ? 0 : i.size || 0), 0);
-    text += ` · ${fmtInt(sel.length)} seçili${bytes ? ` (${fmtSize(bytes)})` : ''}`;
+    text += ` · ${t('{count} seçili', { count: fmtInt(sel.length) })}${bytes ? ` (${fmtSize(bytes)})` : ''}`;
   }
   left.textContent = text;
   if (S.scan) {
     const s = S.scan;
-    const secs = (((s.t1 ?? performance.now()) - s.t0) / 1000).toLocaleString('tr-TR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-    right.innerHTML = `${s.done ? '' : '<span class="spinner small"></span>'}${fmtInt(s.dirs)} klasör · ${fmtInt(s.files)} dosya tarandı · ${fmtInt(s.items.length)} model · ${secs} sn`;
+    const secs = (((s.t1 ?? performance.now()) - s.t0) / 1000).toLocaleString(getLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    right.innerHTML = `${s.done ? '' : '<span class="spinner small"></span>'}${t('{dirs} klasör · {files} dosya tarandı · {models} model · {seconds} sn', { dirs: fmtInt(s.dirs), files: fmtInt(s.files), models: fmtInt(s.items.length), seconds: secs })}`;
   } else {
-    right.textContent = S.listing?.inArchive ? 'Zip arşivi içinde' : '';
+    right.textContent = S.listing?.inArchive ? t('Zip arşivi içinde') : '';
   }
 }
 
 function renderCrumbs() {
   const host = $('#crumbs');
-  const parts = [{ label: 'Bu bilgisayar', path: null, ic: 'computer' }];
+  const parts = [{ label: t('Bu bilgisayar'), path: null, ic: 'computer' }];
   const p = S.path;
   if (p != null) {
     if (sep() === '\\') {
@@ -488,32 +489,32 @@ function itemMenu(e, item) {
   const entries = [];
   if (item) {
     const container = item.kind === 'dir' || item.kind === 'archive' || item.kind === 'drive';
-    if (container) entries.push({ label: 'Aç', icon: 'folder', hint: 'Enter', action: () => openItem(item) });
-    else entries.push({ label: 'Önizle', icon: 'eye', hint: 'Space', action: () => preview.open(item) });
-    entries.push({ label: container ? 'Sistem gezgininde aç' : 'Varsayılan uygulamayla aç', icon: 'external', hint: container ? '' : 'Enter', action: () => api.open(item.path).catch((er) => toast(`Açılamadı: ${er}`, 'error')) });
-    if (item.kind !== 'drive') entries.push({ label: 'Klasörde göster', icon: 'reveal', action: () => api.reveal(item.path).catch((er) => toast(String(er), 'error')) });
-    if (S.scan) entries.push({ label: 'Bulunduğu klasöre git', icon: 'folder', action: () => navigate(parentOf(item.path), { focusPath: item.path }) });
+    if (container) entries.push({ label: t('Aç'), icon: 'folder', hint: 'Enter', action: () => openItem(item) });
+    else entries.push({ label: t('Önizle'), icon: 'eye', hint: 'Space', action: () => preview.open(item) });
+    entries.push({ label: container ? t('Sistem gezgininde aç') : t('Varsayılan uygulamayla aç'), icon: 'external', hint: container ? '' : 'Enter', action: () => api.open(item.path).catch((er) => toast(t('Açılamadı: {error}', { error: er }), 'error')) });
+    if (item.kind !== 'drive') entries.push({ label: t('Klasörde göster'), icon: 'reveal', action: () => api.reveal(item.path).catch((er) => toast(String(er), 'error')) });
+    if (S.scan) entries.push({ label: t('Bulunduğu klasöre git'), icon: 'folder', action: () => navigate(parentOf(item.path), { focusPath: item.path }) });
     entries.push('-');
-    if (container) entries.push({ label: isFav(item.path) ? 'Favorilerden çıkar' : 'Favorilere ekle', icon: 'star', action: () => toggleFavorite(item.path, item.kind === 'drive' ? item.name : null, item.kind === 'archive') });
-    entries.push({ label: multi ? `${sel.length} yolu kopyala` : 'Yolu kopyala', icon: 'copy', action: () => copyText(multi ? sel.map((s) => s.path).join('\r\n') : item.path) });
-    entries.push({ label: 'Adı kopyala', icon: 'copy', action: () => copyText(item.name) });
+    if (container) entries.push({ label: isFav(item.path) ? t('Favorilerden çıkar') : t('Favorilere ekle'), icon: 'star', action: () => toggleFavorite(item.path, item.kind === 'drive' ? item.name : null, item.kind === 'archive') });
+    entries.push({ label: multi ? t('{count} yolu kopyala', { count: fmtInt(sel.length) }) : t('Yolu kopyala'), icon: 'copy', action: () => copyText(multi ? sel.map((s) => s.path).join('\r\n') : item.path) });
+    entries.push({ label: t('Adı kopyala'), icon: 'copy', action: () => copyText(item.name) });
     if (item.kind !== 'drive') {
       entries.push('-');
-      if (!multi) entries.push({ label: 'Yeniden adlandır', icon: 'rename', hint: 'F2', action: renameFocused });
-      entries.push({ label: multi ? `${fmtInt(sel.length)} öğeyi sil` : 'Sil', icon: 'trash', hint: 'Del', danger: true, action: () => deleteItems(multi ? sel : [item]) });
+      if (!multi) entries.push({ label: t('Yeniden adlandır'), icon: 'rename', hint: 'F2', action: renameFocused });
+      entries.push({ label: multi ? t('{count} öğeyi sil', { count: fmtInt(sel.length) }) : t('Sil'), icon: 'trash', hint: 'Del', danger: true, action: () => deleteItems(multi ? sel : [item]) });
     }
   } else {
-    entries.push({ label: 'Yenile', icon: 'refresh', hint: 'F5', action: refresh });
+    entries.push({ label: t('Yenile'), icon: 'refresh', hint: 'F5', action: refresh });
     entries.push('-');
-    entries.push({ label: 'Izgara görünümü', icon: 'grid', checked: S.settings.view === 'grid', action: () => setView('grid') });
-    entries.push({ label: 'Liste görünümü', icon: 'list', checked: S.settings.view === 'list', action: () => setView('list') });
-    entries.push({ label: 'Sadece 3D', icon: 'cube', checked: S.settings.only3d, disabled: !!S.scan, action: toggleOnly3d });
+    entries.push({ label: t('Izgara görünümü'), icon: 'grid', checked: S.settings.view === 'grid', action: () => setView('grid') });
+    entries.push({ label: t('Liste görünümü'), icon: 'list', checked: S.settings.view === 'list', action: () => setView('list') });
+    entries.push({ label: t('Sadece 3D'), icon: 'cube', checked: S.settings.only3d, disabled: !!S.scan, action: toggleOnly3d });
     if (S.path != null) {
-      entries.push({ label: S.scan ? 'Taramadan çık' : 'Alt klasörleri tara', icon: 'scan', action: () => (S.scan ? stopScan() : startScan()) });
+      entries.push({ label: S.scan ? t('Taramadan çık') : t('Alt klasörleri tara'), icon: 'scan', action: () => (S.scan ? stopScan() : startScan()) });
       entries.push('-');
-      entries.push({ label: isFav(S.path) ? 'Bu klasörü favorilerden çıkar' : 'Bu klasörü favorilere ekle', icon: 'star', action: () => toggleFavorite(S.path, null, !!S.listing?.inArchive) });
-      entries.push({ label: 'Sistem gezgininde aç', icon: 'external', action: () => api.open(S.path).catch((er) => toast(String(er), 'error')) });
-      entries.push({ label: 'Yolu kopyala', icon: 'copy', action: () => copyText(S.path) });
+      entries.push({ label: isFav(S.path) ? t('Bu klasörü favorilerden çıkar') : t('Bu klasörü favorilere ekle'), icon: 'star', action: () => toggleFavorite(S.path, null, !!S.listing?.inArchive) });
+      entries.push({ label: t('Sistem gezgininde aç'), icon: 'external', action: () => api.open(S.path).catch((er) => toast(String(er), 'error')) });
+      entries.push({ label: t('Yolu kopyala'), icon: 'copy', action: () => copyText(S.path) });
     }
   }
   showMenu(e.clientX, e.clientY, entries);
@@ -531,14 +532,14 @@ function favoriteMenu(e, index) {
     sidebar.render(S.places, favs);
   };
   showMenu(e.clientX, e.clientY, [
-    { label: 'Aç', icon: 'folder', action: () => navigate(f.path) },
-    { label: 'Sistem gezgininde aç', icon: 'external', action: () => api.open(f.path).catch((er) => toast(String(er), 'error')) },
+    { label: t('Aç'), icon: 'folder', action: () => navigate(f.path) },
+    { label: t('Sistem gezgininde aç'), icon: 'external', action: () => api.open(f.path).catch((er) => toast(String(er), 'error')) },
     '-',
-    { label: 'Yukarı taşı', icon: 'up', disabled: index === 0, action: () => move(-1) },
-    { label: 'Aşağı taşı', icon: 'chevronDown', disabled: index === S.settings.favorites.length - 1, action: () => move(1) },
-    { label: 'Yeniden adlandır', icon: 'fileText', action: () => renameFavorite(index) },
+    { label: t('Yukarı taşı'), icon: 'up', disabled: index === 0, action: () => move(-1) },
+    { label: t('Aşağı taşı'), icon: 'chevronDown', disabled: index === S.settings.favorites.length - 1, action: () => move(1) },
+    { label: t('Yeniden adlandır'), icon: 'fileText', action: () => renameFavorite(index) },
     '-',
-    { label: 'Favorilerden çıkar', icon: 'trash', action: () => toggleFavorite(f.path) },
+    { label: t('Favorilerden çıkar'), icon: 'trash', action: () => toggleFavorite(f.path) },
   ]);
 }
 
@@ -575,22 +576,22 @@ function toggleOnly3d() {
 
 // ---------- delete / rename ----------
 
-const trashName = () => (S.places?.os === 'macos' ? 'Çöp Kutusu' : 'Geri Dönüşüm Kutusu');
+const trashName = () => (S.places?.os === 'macos' ? t('Çöp Kutusu') : t('Geri Dönüşüm Kutusu'));
 
 function deleteBody(items) {
   const wrap = document.createElement('div');
   const folders = items.filter((i) => i.kind === 'dir').length;
-  const what = items.length === 1 ? `“${items[0].name}”` : `Bu ${fmtInt(items.length)} öğe`;
-  wrap.innerHTML = `<p>${esc(what)} ${esc(trashName())}’na taşınsın mı?${folders ? ` <span class="muted">${folders === 1 && items.length === 1 ? 'Klasörün' : 'Klasörlerin'} içindekiler de taşınır.</span>` : ''}</p>`;
+  const what = items.length === 1 ? `“${items[0].name}”` : t('Bu {count} öğe', { count: fmtInt(items.length) });
+  wrap.innerHTML = `<p>${esc(t('{items} {trash}’na taşınsın mı?', { items: what, trash: trashName() }))}${folders ? ` <span class="muted">${t(folders === 1 ? 'Klasörün içindekiler de taşınır.' : 'Klasörlerin içindekiler de taşınır.')}</span>` : ''}</p>`;
   const list = document.createElement('ul');
   list.className = 'confirm-list';
   for (const it of items.slice(0, 6)) {
     const li = document.createElement('li');
     li.className = `k-${it.kind}`;
-    li.innerHTML = `<span class="confirm-ico">${bigIcon(it.kind)}</span><span class="confirm-name">${esc(it.name)}</span><span class="muted">${it.kind === 'dir' ? 'Klasör' : fmtSize(it.size)}</span>`;
+    li.innerHTML = `<span class="confirm-ico">${bigIcon(it.kind)}</span><span class="confirm-name">${esc(it.name)}</span><span class="muted">${it.kind === 'dir' ? t('Klasör') : fmtSize(it.size)}</span>`;
     list.append(li);
   }
-  if (items.length > 6) list.insertAdjacentHTML('beforeend', `<li class="muted">… ve ${fmtInt(items.length - 6)} öğe daha</li>`);
+  if (items.length > 6) list.insertAdjacentHTML('beforeend', `<li class="muted">${t('… ve {count} öğe daha', { count: fmtInt(items.length - 6) })}</li>`);
   wrap.append(list);
   return wrap;
 }
@@ -599,14 +600,14 @@ function deleteBody(items) {
 async function deleteItems(items) {
   items = items.filter((i) => i && i.kind !== 'drive');
   if (!items.length) return;
-  const ok = await confirmDialog({ title: items.length === 1 ? 'Sil' : `${fmtInt(items.length)} öğeyi sil`, body: deleteBody(items), confirmLabel: 'Sil', danger: true });
+  const ok = await confirmDialog({ title: items.length === 1 ? t('Sil') : t('{count} öğeyi sil', { count: fmtInt(items.length) }), body: deleteBody(items), confirmLabel: t('Sil'), danger: true });
   if (!ok) return;
   const anchor = Math.max(0, Math.min(...items.map((i) => S.items.indexOf(i)).filter((i) => i >= 0)));
   let res;
   try {
     res = await api.deletePaths(items.map((i) => i.path));
   } catch (e) {
-    toast(`Silinemedi: ${e}`, 'error', 5000);
+    toast(t('Silinemedi: {error}', { error: e }), 'error', 5000);
     return;
   }
   const gone = new Set(res.deleted.map(normPath));
@@ -620,9 +621,9 @@ async function deleteItems(items) {
       view.selectOnly(next);
       view.ensureVisible(next);
     }
-    toast(gone.size === 1 ? `${trashName()}’na taşındı` : `${fmtInt(gone.size)} öğe ${trashName()}’na taşındı`);
+    toast(gone.size === 1 ? t('{trash}’na taşındı', { trash: trashName() }) : t('{count} öğe {trash}’na taşındı', { count: fmtInt(gone.size), trash: trashName() }));
   }
-  if (res.failed.length) toast(`${fmtInt(res.failed.length)} öğe silinemedi: ${res.failed[0].error}`, 'error', 6000);
+  if (res.failed.length) toast(t('{count} öğe silinemedi: {error}', { count: fmtInt(res.failed.length), error: res.failed[0].error }), 'error', 6000);
   if (preview.isOpen) {
     const it = view.focused();
     if (it) preview.show(it);
@@ -645,7 +646,7 @@ async function renameItem(item, value) {
   try {
     newPath = await api.renamePath(item.path, name);
   } catch (e) {
-    toast(`Yeniden adlandırılamadı: ${e}`, 'error', 5000);
+    toast(t('Yeniden adlandırılamadı: {error}', { error: e }), 'error', 5000);
     return;
   }
   // Favorites pointing at (or inside) a renamed folder follow it.
@@ -680,7 +681,7 @@ function beginDragWatch(down, item) {
     stop();
     const sel = view.selected();
     const paths = sel.some((s) => s.path === item.path) ? sel.filter((s) => s.kind !== 'drive').map((s) => s.path) : [item.path];
-    api.startDrag(paths).catch((er) => toast(`Sürükleme başlatılamadı: ${er}`, 'error'));
+    api.startDrag(paths).catch((er) => toast(t('Sürükleme başlatılamadı: {error}', { error: er }), 'error'));
   };
   const stop = () => {
     window.removeEventListener('mousemove', move);
@@ -781,6 +782,19 @@ function bindToolbar() {
   $('#thumb-size').oninput = (e) => setThumbSize(THUMB_STEPS[Number(e.target.value)]);
   $('#btn-settings').onclick = () =>
     openSettings(S.settings, (key) => {
+      if (key === 'language') {
+        applyTranslations();
+        $('#wc-max').title = document.documentElement.classList.contains('win-maximized') ? t('Önceki boyutuna getir') : t('Ekranı kapla');
+        sidebar.render(S.places, S.settings.favorites);
+        if (S.path === null) S.all = drivesAsItems();
+        applyFilters({ keepSelection: true, keepScroll: true });
+        renderCrumbs();
+        updateFavButton();
+        updateChips();
+        updateScanUi();
+        $('#search').placeholder = S.path == null ? t('Sürücülerde ara') : t('{name} içinde ara', { name: baseName(S.path) || S.path });
+        preview.retranslate();
+      }
       if (key === 'theme') applyTheme();
       if (key === 'modelColor') preview.applyColor(S.settings.modelColor);
       if (key === 'showHidden') refresh();
@@ -789,7 +803,8 @@ function bindToolbar() {
         view.clearNodes();
         view.relayout();
       }
-      save();
+      if (key === 'language') api.saveSettings(S.settings).catch((e) => toast(String(e), 'error'));
+      else save();
     });
   for (const b of document.querySelectorAll('#list-header [data-sort]')) b.onclick = () => setSort(b.dataset.sort);
 
@@ -825,7 +840,7 @@ function bindWindowFrame() {
   const syncMax = async () => {
     const max = await win.isMaximized().catch(() => false);
     $('#wc-max').innerHTML = icon(max ? 'winRestore' : 'winMax');
-    $('#wc-max').title = max ? 'Önceki boyutuna getir' : 'Ekranı kapla';
+    $('#wc-max').title = max ? t('Önceki boyutuna getir') : t('Ekranı kapla');
     document.documentElement.classList.toggle('win-maximized', max);
   };
   $('#wc-min').onclick = () => win.minimize();
@@ -906,6 +921,8 @@ function bindKeys() {
 
 async function init() {
   S.settings = mergeSettings(await api.getSettings().catch(() => null));
+  setLanguage(S.settings.language);
+  applyTranslations();
   document.documentElement.style.setProperty('--sidebar-w', `${S.settings.sidebarWidth}px`);
   applyTheme();
   matchMedia('(prefers-color-scheme: light)').addEventListener('change', applyTheme);
@@ -965,5 +982,5 @@ async function init() {
 
 init().catch((e) => {
   console.error(e);
-  document.body.insertAdjacentHTML('beforeend', `<pre class="fatal">Başlatma hatası: ${esc(e?.stack || e)}</pre>`);
+  document.body.insertAdjacentHTML('beforeend', `<pre class="fatal">${esc(t('Başlatma hatası: {error}', { error: e?.stack || e }))}</pre>`);
 });

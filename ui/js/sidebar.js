@@ -1,8 +1,10 @@
+import { t } from './i18n.js';
 // Left navigation: quick places, favorites, drives.
 import { icon } from './icons.js';
 import { esc, fmtSize } from './util.js';
 
 const PLACE_ICON = { home: 'home', desktop: 'desktop', documents: 'documents', downloads: 'downloads', pictures: 'pictures' };
+const PLACE_LABEL = { home: 'Ana klasör', desktop: 'Masaüstü', documents: 'Belgeler', downloads: 'İndirilenler', pictures: 'Resimler' };
 
 export function baseName(path) {
   const p = path.replace(/[\\/]+$/, '');
@@ -15,7 +17,7 @@ export function driveName(d) {
   if (d.path.startsWith('/')) return d.label || baseName(d.path) || d.path;
   const letter = d.path.replace(/[\\/]+$/, '');
   if (d.label) return `${d.label} (${letter})`;
-  const def = { removable: 'Çıkarılabilir Disk', network: 'Ağ Sürücüsü', cdrom: 'CD Sürücüsü', fixed: 'Yerel Disk' }[d.kind] || 'Disk';
+  const def = { removable: t('Çıkarılabilir Disk'), network: t('Ağ Sürücüsü'), cdrom: t('CD Sürücüsü'), fixed: t('Yerel Disk') }[d.kind] || 'Disk';
   return `${def} (${letter})`;
 }
 
@@ -69,22 +71,22 @@ export class Sidebar {
   render(places, favorites) {
     const link = (path, label, ic, extra = '', attrs = '') =>
       `<a class="nav-item${extra}" data-path="${esc(path)}" title="${esc(path)}" ${attrs}>${icon(ic)}<span class="nav-label">${esc(label)}</span></a>`;
-    const quick = (places?.quick || []).map((p) => link(p.path, p.name, PLACE_ICON[p.id] || 'folder')).join('');
+    const quick = (places?.quick || []).map((p) => link(p.path, PLACE_LABEL[p.id] ? t(PLACE_LABEL[p.id]) : p.name, PLACE_ICON[p.id] || 'folder')).join('');
     const favs = favorites.length
       ? favorites.map((f, i) => link(f.path, f.name || baseName(f.path), f.archive ? 'archive' : 'star', ' fav', `data-fav="${i}" draggable="true"`)).join('')
-      : `<div class="nav-empty">Klasöre sağ tıklayıp <b>Favorilere ekle</b>’yi seçin ya da ☆ düğmesine basın.</div>`;
+      : `<div class="nav-empty">${t('Klasöre sağ tıklayıp <b>Favorilere ekle</b>’yi seçin ya da ☆ düğmesine basın.')}</div>`;
     const drives = (places?.drives || [])
       .map((d) => {
         const ic = d.kind === 'removable' ? 'usb' : d.kind === 'network' ? 'network' : 'drive';
         const used = d.total ? 1 - d.free / d.total : 0;
-        const bar = d.total ? `<span class="nav-usage${used > 0.9 ? ' full' : ''}"><i style="width:${(used * 100).toFixed(1)}%"></i></span><span class="nav-free">${fmtSize(d.free)} boş</span>` : '';
+        const bar = d.total ? `<span class="nav-usage${used > 0.9 ? ' full' : ''}"><i style="width:${(used * 100).toFixed(1)}%"></i></span><span class="nav-free">${fmtSize(d.free)}${t(' boş')}</span>` : '';
         return `<a class="nav-item drive" data-path="${esc(d.path)}" title="${esc(d.path)}">${icon(ic)}<span class="nav-label">${esc(driveName(d))}${bar}</span></a>`;
       })
       .join('');
     this.root.innerHTML = `
-      <div class="nav-section"><div class="nav-title">Hızlı erişim</div>${quick}</div>
-      <div class="nav-section"><div class="nav-title">Favoriler</div>${favs}</div>
-      <div class="nav-section"><div class="nav-title"><a class="nav-title-link" data-computer>Bu bilgisayar</a></div>${drives}</div>`;
+      <div class="nav-section"><div class="nav-title">${t('Hızlı erişim')}</div>${quick}</div>
+      <div class="nav-section"><div class="nav-title">${t('Favoriler')}</div>${favs}</div>
+      <div class="nav-section"><div class="nav-title"><a class="nav-title-link" data-computer>${t('Bu bilgisayar')}</a></div>${drives}</div>`;
     this.highlight(this.active);
   }
 
